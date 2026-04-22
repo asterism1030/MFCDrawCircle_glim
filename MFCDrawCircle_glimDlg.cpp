@@ -77,6 +77,7 @@ BEGIN_MESSAGE_MAP(CMFCDrawCircleglimDlg, CDialogEx)
 	ON_WM_LBUTTONDBLCLK()
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_BTN_RESET, &CMFCDrawCircleglimDlg::OnBnClickedBtnReset)
+	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
 
@@ -156,6 +157,8 @@ void CMFCDrawCircleglimDlg::OnPaint()
 	else
 	{
 		CDialogEx::OnPaint();
+
+		PaintDrawSpace();
 	}
 }
 
@@ -205,7 +208,7 @@ void CMFCDrawCircleglimDlg::PaintDrawSpace()
 	unsigned char* fm = (unsigned char*)m_image.GetBits();
 
 	for (int y = 0; y < nHeight; y++) {			// 열
-		memset(fm + y * nPitch, 0xff, nWidth);	// 행
+		memset(fm + y * nPitch, bgColor, nWidth);	// 행
 	}
 
 
@@ -247,10 +250,10 @@ void CMFCDrawCircleglimDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
 }
 
 
-
-
-
 void CMFCDrawCircleglimDlg::OnBnClickedBtnReset()
 {
-	PaintDrawSpace();
+	
 }
+
+
+
