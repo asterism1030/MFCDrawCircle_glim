@@ -216,6 +216,26 @@ void CMFCDrawCircleglimDlg::PaintDrawSpace()
 }
 
 
+BOOL CMFCDrawCircleglimDlg::ValidImgPos(int x, int y, int w, int h)
+{
+	int nWidth = m_image.GetWidth();
+	int nHeight = m_image.GetHeight();
+
+	int endX = x + w;
+	int endY = y + h;
+
+	if (endX >= nWidth) {
+		return false;
+	}
+
+	if (endY >= nHeight) {
+		return false;
+	}
+
+	return true;
+}
+
+
 BOOL CMFCDrawCircleglimDlg::IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius)
 {
 	bool bRect = false;
@@ -237,17 +257,27 @@ void CMFCDrawCircleglimDlg::DrawCircle(int left_x, int top_y, int radius)
 	int nCenterX = left_x + radius;
 	int nCenterY = top_y + radius;
 
-	//int nPitch = m_image_bg.GetPitch();
+	int bgColor = 0x0;
 
+	int nPitch = m_image.GetPitch();
 
+	unsigned char* fm = (unsigned char*)m_image.GetBits();
+
+	for (int j = top_y; j < top_y + (radius * 2); j++) {
+		for (int i = left_x; i < left_x + (radius * 2); i++) {
+			if (ValidImgPos(i, j, radius, radius) == false) {
+				break;
+			}
+
+			if (IsInCircle(i, j, nCenterX, nCenterY, radius) == false) {
+				continue;
+			}
+
+			fm[j * nPitch + i] = bgColor;
+		}
+	}
 }
 
-
-void CMFCDrawCircleglimDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
-{
-	CClientDC dc(this);
-	
-}
 
 
 void CMFCDrawCircleglimDlg::OnBnClickedBtnReset()

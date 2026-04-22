@@ -34,10 +34,11 @@ protected:
 
 public:
 
-	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
 	void PaintDrawSpace();
 	void UpdateDisplay();
+
+	BOOL ValidImgPos(int x, int y, int w, int h);
 
 	BOOL IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius);
 	void DrawCircle(int left_x, int top_y, int radius);
