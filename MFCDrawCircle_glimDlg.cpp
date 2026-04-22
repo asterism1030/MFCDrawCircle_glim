@@ -7,6 +7,7 @@
 #include "MFCDrawCircle_glim.h"
 #include "MFCDrawCircle_glimDlg.h"
 #include "afxdialogex.h"
+#include "resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,10 @@ END_MESSAGE_MAP()
 
 CMFCDrawCircleglimDlg::CMFCDrawCircleglimDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFCDRAWCIRCLE_GLIM_DIALOG, pParent)
+	, m_circle_1_radius(10)
+	, m_circle_2_radius(10)
+	, m_circle_3_radius(10)
+	, m_circle_thick(1)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -59,12 +64,19 @@ CMFCDrawCircleglimDlg::CMFCDrawCircleglimDlg(CWnd* pParent /*=nullptr*/)
 void CMFCDrawCircleglimDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_CIRCLE_1_R, m_circle_1_radius);
+	DDX_Text(pDX, IDC_CIRCLE_2_R, m_circle_2_radius);
+	DDX_Text(pDX, IDC_CIRCLE_3_R, m_circle_3_radius);
+	DDX_Text(pDX, IDC_CIRCLE_THICK, m_circle_thick);
 }
 
 BEGIN_MESSAGE_MAP(CMFCDrawCircleglimDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_CTLCOLOR()
+	ON_BN_CLICKED(IDC_BTN_RESET, &CMFCDrawCircleglimDlg::OnBnClickedBtnReset)
 END_MESSAGE_MAP()
 
 
@@ -100,6 +112,7 @@ BOOL CMFCDrawCircleglimDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
+
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -153,3 +166,91 @@ HCURSOR CMFCDrawCircleglimDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+void CMFCDrawCircleglimDlg::UpdateDisplay()
+{
+	CClientDC dc(this);
+
+	CRect rect;
+	GetDlgItem(IDC_DRAW_SPACE)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
+	m_image.Draw(dc, rect.left, rect.top);
+}
+
+
+void CMFCDrawCircleglimDlg::PaintDrawSpace()
+{
+	CRect rect;
+	GetDlgItem(IDC_DRAW_SPACE)->GetWindowRect(&rect);
+	ScreenToClient(&rect);
+
+	int nWidth = rect.Width();
+	int nHeight = rect.Height();
+	int nBpp = 8;
+
+	int bgColor = 0xff;
+
+	m_image.Create(nWidth, -nHeight, nBpp);
+
+	if (nBpp == 8) {
+		static RGBQUAD rgb[256];
+		for (int i = 0; i < 256; i++) {
+			rgb[i].rgbRed = rgb[i].rgbGreen = rgb[i].rgbBlue = i;
+		}
+		m_image.SetColorTable(0, 256, rgb);
+	}
+
+	int nPitch = m_image.GetPitch();
+	unsigned char* fm = (unsigned char*)m_image.GetBits();
+
+	for (int y = 0; y < nHeight; y++) {			// 열
+		memset(fm + y * nPitch, 0xff, nWidth);	// 행
+	}
+
+
+	UpdateDisplay();
+}
+
+
+BOOL CMFCDrawCircleglimDlg::IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius)
+{
+	bool bRect = false;
+
+	double dx = left_x - nCenterX;
+	double dy = top_y - nCenterY;
+	double dDist = dx * dx + dy * dy;
+
+	if (dDist < radius * radius) {
+		bRect = true;
+	}
+
+	return bRect;
+}
+
+
+void CMFCDrawCircleglimDlg::DrawCircle(int left_x, int top_y, int radius)
+{
+	int nCenterX = left_x + radius;
+	int nCenterY = top_y + radius;
+
+	//int nPitch = m_image_bg.GetPitch();
+
+
+}
+
+
+void CMFCDrawCircleglimDlg::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	CClientDC dc(this);
+	
+}
+
+
+
+
+
+void CMFCDrawCircleglimDlg::OnBnClickedBtnReset()
+{
+	PaintDrawSpace();
+}

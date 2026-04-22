@@ -31,4 +31,23 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+
+public:
+
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+	void PaintDrawSpace();
+	void UpdateDisplay();
+
+	BOOL IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius);
+	void DrawCircle(int left_x, int top_y, int radius);
+
+	CImage m_image;
+
+	int m_circle_1_radius;
+	int m_circle_2_radius;
+	int m_circle_3_radius;
+	int m_circle_thick;
+
+	afx_msg void OnBnClickedBtnReset();
 };
