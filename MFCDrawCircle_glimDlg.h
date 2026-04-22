@@ -33,16 +33,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 public:
-
-
-	void PaintDrawSpace();
-	void UpdateDisplay();
-
-	BOOL ValidImgPos(int x, int y, int w, int h);
-
-	BOOL IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius);
-	void DrawCircle(int left_x, int top_y, int radius);
-
 	CImage m_image;
 
 	int m_circle_1_radius;
@@ -50,5 +40,24 @@ public:
 	int m_circle_3_radius;
 	int m_circle_thick;
 
+	CString m_circle_1_xy;
+	CString m_circle_2_xy;
+	CString m_circle_3_xy;
+
+	int m_circle_count = 0;
+	CPoint m_circle_pos[3];
+
+	void PaintDrawSpace();
+	void UpdateDisplay();
+
+	BOOL ValidImgPos(int x, int y, int w, int h);
+	BOOL ValidImgPos(int x, int y);
+
+	BOOL IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius);
+	void DrawCircle(int left_x, int top_y, int radius);
+
+
 	afx_msg void OnBnClickedBtnReset();
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	
 };

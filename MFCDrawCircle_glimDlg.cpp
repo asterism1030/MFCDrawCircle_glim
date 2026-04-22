@@ -7,6 +7,7 @@
 #include "MFCDrawCircle_glim.h"
 #include "MFCDrawCircle_glimDlg.h"
 #include "afxdialogex.h"
+
 #include "resource.h"
 
 #ifdef _DEBUG
@@ -57,6 +58,9 @@ CMFCDrawCircleglimDlg::CMFCDrawCircleglimDlg(CWnd* pParent /*=nullptr*/)
 	, m_circle_2_radius(10)
 	, m_circle_3_radius(10)
 	, m_circle_thick(1)
+	, m_circle_1_xy(_T(""))
+	, m_circle_2_xy(_T(""))
+	, m_circle_3_xy(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -68,6 +72,9 @@ void CMFCDrawCircleglimDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_CIRCLE_2_R, m_circle_2_radius);
 	DDX_Text(pDX, IDC_CIRCLE_3_R, m_circle_3_radius);
 	DDX_Text(pDX, IDC_CIRCLE_THICK, m_circle_thick);
+	DDX_Text(pDX, IDC_CIRCLE_1_XY, m_circle_1_xy);
+	DDX_Text(pDX, IDC_CIRCLE_2_XY, m_circle_2_xy);
+	DDX_Text(pDX, IDC_CIRCLE_3_XY, m_circle_3_xy);
 }
 
 BEGIN_MESSAGE_MAP(CMFCDrawCircleglimDlg, CDialogEx)
@@ -78,6 +85,7 @@ BEGIN_MESSAGE_MAP(CMFCDrawCircleglimDlg, CDialogEx)
 	ON_WM_CTLCOLOR()
 	ON_BN_CLICKED(IDC_BTN_RESET, &CMFCDrawCircleglimDlg::OnBnClickedBtnReset)
 	ON_WM_CTLCOLOR()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -236,12 +244,29 @@ BOOL CMFCDrawCircleglimDlg::ValidImgPos(int x, int y, int w, int h)
 }
 
 
-BOOL CMFCDrawCircleglimDlg::IsInCircle(int left_x, int top_y, int nCenterX, int nCenterY, int radius)
+BOOL CMFCDrawCircleglimDlg::ValidImgPos(int x, int y)
+{
+	int nWidth = m_image.GetWidth();
+	int nHeight = m_image.GetHeight();
+
+	if (x >= nWidth || x < 0) {
+		return false;
+	}
+
+	if (y >= nHeight || y < 0) {
+		return false;
+	}
+
+	return true;
+}
+
+
+BOOL CMFCDrawCircleglimDlg::IsInCircle(int pX, int pY, int nCenterX, int nCenterY, int radius)
 {
 	bool bRect = false;
 
-	double dx = left_x - nCenterX;
-	double dy = top_y - nCenterY;
+	double dx = pX - nCenterX;
+	double dy = pY - nCenterY;
 	double dDist = dx * dx + dy * dy;
 
 	if (dDist < radius * radius) {
@@ -252,30 +277,28 @@ BOOL CMFCDrawCircleglimDlg::IsInCircle(int left_x, int top_y, int nCenterX, int 
 }
 
 
-void CMFCDrawCircleglimDlg::DrawCircle(int left_x, int top_y, int radius)
+void CMFCDrawCircleglimDlg::DrawCircle(int x, int y, int radius)
 {
-	int nCenterX = left_x + radius;
-	int nCenterY = top_y + radius;
-
 	int bgColor = 0x0;
-
+	
 	int nPitch = m_image.GetPitch();
-
 	unsigned char* fm = (unsigned char*)m_image.GetBits();
 
-	for (int j = top_y; j < top_y + (radius * 2); j++) {
-		for (int i = left_x; i < left_x + (radius * 2); i++) {
-			if (ValidImgPos(i, j, radius, radius) == false) {
-				break;
+	for (int j = y - radius; j < y + radius; j++) {
+		for (int i = x - radius; i < x + radius; i++) {
+			if (ValidImgPos(i, j) == false) {
+				continue;
 			}
 
-			if (IsInCircle(i, j, nCenterX, nCenterY, radius) == false) {
+			if (IsInCircle(i, j, x, y, radius) == false) {
 				continue;
 			}
 
 			fm[j * nPitch + i] = bgColor;
 		}
 	}
+
+	UpdateDisplay();
 }
 
 
@@ -286,4 +309,44 @@ void CMFCDrawCircleglimDlg::OnBnClickedBtnReset()
 }
 
 
+void CMFCDrawCircleglimDlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	CString str;
+	str.Format(_T("%ld, %ld"), point.x, point.y);
 
+	switch (m_circle_count) {
+	case 0 :
+		DrawCircle(point.x, point.y, m_circle_1_radius);
+		m_circle_pos[0] = point;
+		m_circle_count++;
+
+		GetDlgItem(IDC_CIRCLE_1_XY)->SetWindowText(str);
+		
+		break;
+
+	case 1:
+		DrawCircle(point.x, point.y, m_circle_2_radius);
+		m_circle_pos[1] = point;
+		m_circle_count++;
+
+		GetDlgItem(IDC_CIRCLE_2_XY)->SetWindowText(str);
+
+		break;
+
+	case 2:
+		DrawCircle(point.x, point.y, m_circle_3_radius);
+		m_circle_pos[2] = point;
+		m_circle_count++;
+		
+		GetDlgItem(IDC_CIRCLE_3_XY)->SetWindowText(str);
+
+		break;
+	default:
+	{
+		//AfxMessageBox(_T("circle count is max!"));
+	}
+	}
+	
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}

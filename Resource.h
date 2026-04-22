@@ -16,9 +16,15 @@
 #define IDC_CIRCLE                      1006
 #define IDC_CIRCLE_THICK                1007
 #define IDC_BTN_RANDOM_MOV              1008
-#define IDC_BTN_RESET2                  1009
 #define IDC_BTN_RESET                   1009
 #define IDC_DRAW_SPACE                  1010
+#define IDC_CIRCLE_1_P_TEXT             1011
+#define IDC_CIRCLE_1_XY                 1012
+#define IDC_CIRCLE_2_P_TEXT             1013
+#define IDC_CIRCLE_3_P_TEXT             1015
+#define IDC_CIRCLE_2_X                  1018
+#define IDC_CIRCLE_2_XY                 1018
+#define IDC_CIRCLE_3_XY                 1020
 
 // Next default values for new objects
 // 
